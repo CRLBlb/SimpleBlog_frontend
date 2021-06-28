@@ -10,7 +10,7 @@ name: "TopBar",
   data(){
     return{
       navList: [
-        {name: '/', navItem: '我的文章'},
+        {name: '/userhome', navItem: '我的文章'},
         // {name: '/', navItem: '我的关注'},
         // {name: '/', navItem: '消息中心'},
         {name: '/postpage', navItem: '发表博客'}

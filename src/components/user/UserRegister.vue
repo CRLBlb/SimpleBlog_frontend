@@ -63,7 +63,7 @@ export default {
         nickname: 'test',
         userEmail: 'test@test.com',
         avatar:'',
-        userCreateTime:''
+        userCreateTime:new Date().Format("yyyy-MM-dd HH:mm:ss")
       },
 
       url: '',
@@ -116,10 +116,6 @@ export default {
                 this.registerUser.userId = response1.data.result.length
                 // this.changePage(current)//更新当前页码的数据
                 console.log(response1.data.result.length) // 控制台打印响应的数据
-                //获取当前时间
-                var timestamp = new Date( +new Date() )
-                console.log("时间:")
-                console.log(timestamp); //1495302061441
                 this.$axios
                     .post('/userregister', {
                       // userId: this.registerUser.userId + 1,
@@ -129,7 +125,7 @@ export default {
                       status: this.registerUser.status,
                       userEmail: this.registerUser.userEmail,
                       avatar: this.registerUser.avatar,
-                      userCreateTime:timestamp
+                      userCreateTime:this.registerUser.userCreateTime
                     })
                     .then(function (response2) {
                       alert(JSON.stringify(response2.data))

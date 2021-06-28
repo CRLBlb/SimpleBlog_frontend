@@ -1,8 +1,8 @@
 <template>
   <div>
-<!--    <el-row style="height: 840px;">-->
-<!--      <search-bar @onSearch="searchResult" ref="searchBar"></search-bar>-->
-<!--    </el-row>-->
+
+    <search-bar @onSearch="searchResult" ref="searchBar"></search-bar>
+
     <div style="margin-top: 40px">
       <!--<el-button @click="addArticle()">添加文章</el-button>-->
       <div class="blogs-area">
@@ -48,6 +48,7 @@
       </el-pagination>
     </div>
   </div>
+
 </template>
 
 <!--引入阿里图标库 https://www.iconfont.cn/collections/detail?cid=614-->
@@ -81,6 +82,7 @@ export default {
         }
       })
     },
+    //监控分页改变
     handleCurrentChange (page) {
       var _this = this
       this.$axios.get('/blog/' + this.pageSize + '/' + page).then(resp => {
@@ -91,7 +93,32 @@ export default {
       }).catch(failResponse => {
         console.log(failResponse);
       })
-    }
+    },
+    //通过标题进行搜索
+    searchResult () {
+      const _this = this;
+      this.$axios
+          .get('/blogbytitle/'+ this.pageSize+'/1'+'?title='
+              + this.$refs.searchBar.searchtitle, {
+          }).then(resp => {
+        if (resp && resp.status === 200) {
+          // console.log(resp)
+          // _this.blogs = resp.data
+          console.log("成功查询博文信息！")
+          _this.blogs = resp.data.result.content
+          _this.total = resp.data.result.totalElements
+          console.log(_this.blogs[0])
+        }
+      })
+      // this.$axios.get('/blog/' + this.pageSize + '/1').then(resp => {
+      //   if (resp && resp.data.code === 200) {
+      //     console.log("succ")
+      //     _this.blogs = resp.data.result.content
+      //     _this.total = resp.data.result.totalElements
+      //     console.log(_this.blogs[0])
+      //   }
+      // })
+    },
   }
 }
 </script>

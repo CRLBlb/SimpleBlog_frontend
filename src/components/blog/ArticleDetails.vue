@@ -1,44 +1,78 @@
 <template>
   <div class="articles-area">
-    <el-card style="text-align: left;width: 990px;margin: 35px auto 0 auto">
-      <div>
-        <span style="font-size: 20px"><strong>{{article.title}}</strong></span>
-        <el-divider content-position="left">{{article.blogCreateTime}}</el-divider>
-        <div class="markdown-body">
-          <div v-html="article.htmlContent"></div>
-        </div>
-      </div>
-
-      <!--点赞模块-->
-      <icon-svg
-          v-if="isLiked === '0'"
-          @click.native="addLikes(article.blogId)" icon-class="dianzan" />
-      <icon-svg
-          v-if="isLiked === '1'"
-          @click.native="addLikes(article.blogId)" icon-class="dianzan-red" />
-      <!--点赞模块-->
-      <icon-svg
-          v-if="isCollection === '0'"
-          @click.native="addCollections(article.blogId)" icon-class="star" />
-      <icon-svg
-          v-if="isCollection === '1'"
-          @click.native="addCollections(article.blogId)" icon-class="star-red" />
-    </el-card>
-
+<!--    <el-menu-item style="width: 800px" >-->
+<!--      <el-input-->
+<!--          placeholder="请输入文章标题"-->
+<!--          prefix-icon="el-icon-search"-->
+<!--          clearable-->
+<!--          style="position: center; width: 500px;"-->
+<!--          v-model="search_blog"-->
+<!--          @click.native="handleSearch">-->
+<!--      </el-input>-->
+<!--    </el-menu-item>-->
+    <el-row :gutter="20" style="margin-top:10px;">
+      <el-col :span="4">
+        <!-- 左侧栏，显示作者信息-->
+        <LeftBar style="margin-bottom: 50px"></LeftBar>
+      </el-col>
+      <el-col :span="16">
+        <!--显示文章信息-->
+        <el-card style="text-align: left;width: 990px;margin: 35px auto 0 auto">
+          <div>
+            <span style="font-size: 20px"><strong>{{article.title}}</strong></span>
+            <el-divider content-position="left">{{article.blogCreateTime}}</el-divider>
+            <div class="markdown-body">
+              <div v-html="article.htmlContent"></div>
+            </div>
+          </div>
+          <div style="float: right;">
+            <!--点赞模块-->
+            <icon-svg
+                v-if="isLiked === '0'"
+                @click.native="addLikes(article.blogId,$store.state.user.userId)"
+                icon-class="dianzan"
+                style=" width: 2.5em; height: 2.5em;
+       vertical-align: -0.15em;" />
+            <icon-svg
+                v-if="isLiked === '1'"
+                @click.native="addLikes(article.blogId,$store.state.user.userId)"
+                icon-class="dianzan-red"
+                style=" width: 2.5em; height: 2.5em;
+       vertical-align: -0.15em;"/>
+            <!--收藏模块-->
+            <icon-svg
+                v-if="isCollection === '0'"
+                @click.native="addCollections(article.blogId,$store.state.user.userId)"
+                icon-class="star"
+                style=" width: 2.5em; height: 2.5em;
+       vertical-align: -0.15em;"/>
+            <icon-svg
+                v-if="isCollection === '1'"
+                @click.native="addCollections(article.blogId,$store.state.user.userId)"
+                icon-class="star-red"
+                style=" width: 2.5em; height: 2.5em;
+       vertical-align: -0.15em;"/>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
     <el-card>
       <!--评论模块-->
       <comments><</comments>
     </el-card>
-
   </div>
+
+
+
 </template>
 
 <script>
   import "@/assets/iconfont.js"
   import Comments from "@/components/blog/Comments";
+  import LeftBar from "@/components/blog/LeftBar";
   export default {
     name: 'ArticleDetails',
-    components: {Comments},
+    components: {Comments,LeftBar},
     data () {
       return {
         //isLiked 用于判断用户是否已点赞 1:已点赞 0:未点赞
@@ -52,11 +86,42 @@
       //打开页面时加载文章
       this.loadArticle()
       //根据用户点赞数据动态改变点赞按钮颜色
-      this.checkLikes(this.$route.query.blogId)
+      this.checkLikes(this.$route.query.blogId,this.$store.state.user.userId)
       //根据用户收藏数据动态改变收藏按钮颜色
-      this.checkCollections(this.$route.query.blogId)
+      this.checkCollections(this.$route.query.blogId,this.$store.state.user.userId)
+      console.log("输出用户登录信息！")
+      console.log(this.$store.state)
     },
     methods: {
+
+      // //根据文章标题搜索博文信息
+      // handleSearch () {
+      //   let search_blog = this.search_blog
+      //   let _this = this
+      //   // console.log(this.$store.state) //控制台打印日志
+      //   if (search_blog === '') {
+      //     console.log('search all !')
+      //     console.log('length:' + this.data.length) // 获取长度
+      //
+      //   } else {
+      //     console.log('search one !')
+      //     this.$axios
+      //         .get('/searchblog/' + search, { // 前端发送post请求？
+      //         })
+      //         .then(response => {
+      //           _this.data = response.data // 传递后端数据到前端
+      //           JSON.stringify(response.data)
+      //           loadArticles()
+      //           // this.changePage(current)//更新当前页码的数据
+      //           console.log(response) // 控制台打印响应的数据
+      //         })
+      //         // 错误处理
+      //         .catch(error => {
+      //           console.log(error)
+      //           console.log('STH WRONG WITH IT LIUBO')
+      //         })
+      //   }
+      // },
       //搜索文章
       loadArticle () {
         var _this = this
@@ -68,7 +133,7 @@
         })
       },
       //用户点赞
-      addLikes (blogId) {
+      addLikes (blogId,userId) {
         this.$axios
             //搜索用户-点赞数据表
             .get('/searchuserlikes/', { // 前端发送get请求
@@ -77,17 +142,13 @@
               var _this =this;
               console.log(response1.data.length)
               //用户之前未点赞
-              var count = response1.data.length
-              //获取当前时间
-              var timestamp = new Date( +new Date() )
-              console.log("时间:")
-              console.log(timestamp); //1495302061441
+              const count = response1.data.length;
               console.log(_this.$store.state)
-              this.$axios.post('/likeblog/'+ blogId, {
+              this.$axios.post('/likeblog/'+ blogId+'/'+userId, {
                 // likeId:'0',
                 blogId:blogId,
                 userId:_this.$store.state.user.userId,
-                likeCreateTime:timestamp,
+                likeCreateTime:new Date().Format("yyyy-MM-dd HH:mm:ss"),
                 status:0
               }).then(resp => {
                 if (resp && resp.data.result === "取消点赞") {
@@ -112,13 +173,13 @@
             })
       },
       //检测用户是否点赞，动态改变点赞按钮颜色
-      checkLikes (blogId) {
+      checkLikes (blogId,userId) {
         this.$axios
             //搜索用户-点赞数据表
             .get('/searchuserlikes/', { // 前端发送get请求
             })
             .then(response1 => {
-              this.$axios.get('/checklikeblog/'+ blogId, {
+              this.$axios.get('/checklikeblog/'+ blogId+'/'+userId, {
               }).then(resp => {
                 if (resp && resp.data.result === "已点赞") {
                   console.log("已点赞！")
@@ -142,7 +203,7 @@
 
 
       //用户收藏
-      addCollections (blogId) {
+      addCollections (blogId,userId) {
         this.$axios
             //搜索用户-收藏数据表
             .get('/searchusercollections/', { // 前端发送get请求
@@ -157,7 +218,7 @@
               console.log("时间:")
               console.log(timestamp); //1495302061441
               console.log(_this.$store.state)
-              this.$axios.post('/collectionblog/'+ blogId, {
+              this.$axios.post('/collectionblog/'+ blogId+'/'+userId, {
                 // collectionId:'0',
                 blogId:blogId,
                 userId:_this.$store.state.user.userId,
@@ -186,13 +247,13 @@
             })
       },
       //检测用户是否收藏，动态改变收藏按钮颜色
-      checkCollections (blogId) {
+      checkCollections (blogId,userId) {
         this.$axios
             //搜索用户-收藏数据表
             .get('/searchusercollections/', { // 前端发送get请求
             })
             .then(response1 => {
-              this.$axios.get('/checkcollectionblog/'+ blogId, {
+              this.$axios.get('/checkcollectionblog/'+ blogId+'/'+userId, {
               }).then(resp => {
                 if (resp && resp.data.result === "已收藏") {
                   console.log("已收藏！")

@@ -99,7 +99,12 @@
 </template>
 
 <script>
+import NavMenu from '../common/NavMenu'
+
+const situation = NavMenu;
 export default {
+  //使用inject
+  inject: ['reload'],
   name: "LeftBar",
   data() {
     return {
@@ -128,13 +133,15 @@ export default {
       this.$axios.post("/user/save", this.myInfo).then((res) => {
         //更新状态信息
         let loginForm = {
-          userId:this.myInfo.userId,
+              userId:this.myInfo.userId,
               userPhone: this.myInfo.userPhone,
               userPassword: this.myInfo.userPassword,
               avatar:this.myInfo.avatar,
               nickname:this.myInfo.nickname
         }
         this.$store.commit('login', loginForm)
+        //刷新页面
+        this.reload()
         this.toCommon()
       })
     },

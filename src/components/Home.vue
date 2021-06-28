@@ -1,9 +1,8 @@
 <template>
   <div>
-    <nav-menu :comment="comment":like="like":follow="follow":broadcast="broadcast":message="message"></nav-menu>
-<!--    <test2></test2>
-    <test3></test3>-->
-    <router-view @setTag="setTag" :comment="comment":like="like":follow="follow":broadcast="broadcast":message="message"></router-view>
+    <nav-menu :broadcast="broadcast" :comment="comment" :follow="follow" :like="like" :message="message"></nav-menu>
+    <router-view :broadcast="broadcast" :comment="comment" :follow="follow" :like="like" :message="message"
+                 @setTag="setTag"></router-view>
   </div>
 </template>
 
@@ -12,6 +11,11 @@ import NavMenu from "@/components/common/NavMenu";
 export default {
   name: "Home",
   components: { NavMenu},
+
+  //关闭websocket
+  destroyed() {
+    this.websocket.close(1000,this.$store.state.user.userId)
+  },
   mounted() {
     // WebSocket
     if ('WebSocket' in window) {

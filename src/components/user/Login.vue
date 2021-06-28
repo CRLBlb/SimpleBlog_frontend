@@ -79,8 +79,6 @@ export default {
               //获取所登录用户的昵称
               _this.nickname = successResponse.data.result.nickname
               this.loginForm.nickname = _this.nickname
-
-
               console.log(this.loginForm.userId)
               console.log(this.loginForm.avatar)
               console.log(this.loginForm)

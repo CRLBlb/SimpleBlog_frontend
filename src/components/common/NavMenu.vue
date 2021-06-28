@@ -9,34 +9,42 @@
     <el-menu-item v-for="(item,i) in navList" :key="i" :index="item.name">
       {{ item.navItem }}
     </el-menu-item>
-    <!--   <el-header style="z-index: 1;height: 80px;margin-left: -20px">-->
-    <!--     <Header style="position: absolute;width: 98%;"></Header>-->
-    <!--   </el-header>-->
     <el-menu-item style="width: 800px" >
       <el-input
-          placeholder="请输入搜索内容"
+          placeholder="请输入博主昵称"
           prefix-icon="el-icon-search"
           clearable
           style="position: center; width: 500px;"
-          v-model="search"
+          v-model="search_user"
           @click.native="handleSearch">
       </el-input>
     </el-menu-item>
     <el-submenu index="2" >
       <template slot="title">
+      <!--用户头像-->
         <el-avatar :src="avatar" />
       </template>
       <el-menu-item index="">个人中心</el-menu-item>
-<!--      <el-menu-item index="2-2">选项2</el-menu-item>-->
-<!--      <el-menu-item index="2-3">选项3</el-menu-item>-->
       <el-submenu index="2-4">
         <template slot="title" >消息中心</template>
-        <el-menu-item index="/information/broadcast"><el-badge is-dot :hidden="broadcast_tag" class="item">公告</el-badge></el-menu-item>
-        <el-menu-item index="/information/comment"><el-badge is-dot :hidden="comment_tag" class="item">评论</el-badge></el-menu-item>
-        <el-menu-item index="/information/follow"><el-badge is-dot :hidden="follow_tag" class="item">关注</el-badge></el-menu-item>
-        <el-menu-item index="/information/like"><el-badge is-dot :hidden="like_tag" class="item">点赞</el-badge></el-menu-item>
-        <el-menu-item index="/message"><el-badge is-dot :hidden="message_tag" class="item">私信</el-badge></el-menu-item>
-        <el-menu-item index="/information/set"><el-badge is-dot :hidden="true" class="item">设置</el-badge></el-menu-item>
+        <el-menu-item index="/information/broadcast">
+          <el-badge is-dot :hidden="broadcast_tag" class="item">公告</el-badge>
+        </el-menu-item>
+        <el-menu-item index="/information/comment">
+          <el-badge is-dot :hidden="comment_tag" class="item">评论</el-badge>
+        </el-menu-item>
+        <el-menu-item index="/information/follow">
+          <el-badge is-dot :hidden="follow_tag" class="item">关注</el-badge>
+        </el-menu-item>
+        <el-menu-item index="/information/like">
+          <el-badge is-dot :hidden="like_tag" class="item">点赞</el-badge>
+        </el-menu-item>
+        <el-menu-item index="/message">
+          <el-badge is-dot :hidden="message_tag" class="item">私信</el-badge>
+        </el-menu-item>
+        <el-menu-item index="/information/set">
+          <el-badge is-dot :hidden="true" class="item">设置</el-badge>
+        </el-menu-item>
       </el-submenu>
       <el-menu-item index="2-2" @click="userlogout" >退出登录</el-menu-item>
     </el-submenu>
@@ -57,11 +65,13 @@ export default {
     info:''
   },
   name: 'NavMenu',
+
+  mounted() {
+  },
+
+
   //监听器
   watch: {
-    avatar: function (val) {
-      this.avatar=val
-    },
     comment: function (val) {
       this.comment_tag = val
     },
@@ -92,7 +102,8 @@ export default {
         {name: '/blog', navItem: '博客'},
         {name: '/userhome', navItem: '个人中心'}
       ],
-      search:"",
+      //搜索框输入内容
+      search_user:"",
       avatar:this.$store.state.user.avatar
     }
   },
@@ -103,11 +114,9 @@ export default {
       window.localStorage.clear() // 清除所有缓存
       this.$router.replace({ path: '/login' })
     },
-    //搜索博文
+    //根据昵称搜索博主信息
     handleSearch () {
       let search = this.search
-      // let orderKey = this.key
-      // let orderByValue = this.order
       let _this = this
       // console.log(this.$store.state) //控制台打印日志
       if (search === '') {

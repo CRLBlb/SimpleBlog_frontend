@@ -2,6 +2,7 @@
   <div class="home">
     <el-row :gutter="20" style="margin-top:10px;">
       <el-col :span="6">
+        <!-- 左侧栏，显示个人用户信息-->
         <LeftBar style="margin-bottom: 50px"></LeftBar>
         <FollowBar></FollowBar>
       </el-col>

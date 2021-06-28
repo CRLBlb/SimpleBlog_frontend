@@ -42,6 +42,8 @@
 </template>
 
 <script>
+
+
 export default {
   name: "EditBlogCom",
   data(){
@@ -77,7 +79,13 @@ export default {
     handleSuccess(response) {
       this.newBlog.cover = response
       this.$emit('onUpload')
-      this.$message.warning('上传成功')
+      // this.$message.warning('上传成功')
+      //提示长时间不消失，改为如下代码
+      this.$message({
+        showClose: true,
+        type: 'warning',
+        message: '头像上传成功！'
+      })
     },
     $imgAdd(pos, $file) {
       var formdata = new FormData();
