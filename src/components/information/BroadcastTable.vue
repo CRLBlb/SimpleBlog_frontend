@@ -3,12 +3,15 @@
     <div v-for="a in broadcast_info">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>{{a.broadcast.broadcastContent}}</span>
+          <span>{{a.broadcast.broadcastTitle}}</span>
           <div style="float: right; padding: 3px 0">
             <el-popconfirm @confirm="del(a.id)" title="这是一段内容确定删除吗？">
               <i class="el-icon-delete" slot="reference"></i>
             </el-popconfirm>
           </div>
+        </div>
+        <div class="text item">
+          {{a.broadcast.broadcastContent}}
         </div>
       </el-card>
       <el-divider><i class="el-icon-data-board"></i>  {{a.broadcast.broadcastCreateTime}}</el-divider>

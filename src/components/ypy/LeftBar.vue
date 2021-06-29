@@ -170,7 +170,7 @@ export default {
     },
   },
   mounted() {
-    this.$axios.get("/user/1").then((res) => {
+    this.$axios.get("/user/"+this.$store.state.user.userId).then((res) => {
           this.myInfo = res.data
           this.myCreateDate = this.$moment(this.myInfo.userCreateTime).format('YYYY-MM-DD HH:mm:ss')
         }

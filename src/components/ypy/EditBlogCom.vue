@@ -66,6 +66,7 @@ export default {
   },
   methods:{
     submit(){
+      this.newBlog.status = 0
       this.$axios.post('/blog/add',this.newBlog).then( (res)=>{
         this.$router.push({
           name:'UserHome'

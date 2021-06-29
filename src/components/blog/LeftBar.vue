@@ -5,13 +5,14 @@
       <div slot="header" class="clearfix">
         <span>作者信息</span>
       </div>
-
       <div>
         <el-image :src="authorInfo.avatar"
                   style="width: 100px;height: 100px; border-radius: 50%;margin-bottom: 20px"></el-image>
       </div>
-      <span style="color:#222226;font-size:22px;font-weight:500;line-height:24px;">
-        {{ authorInfo.nickname }}</span>
+      <router-link style="color:#222226;font-size:22px;font-weight:500;line-height:24px;"
+                   :to="{path:'/otherhome?userId='+this.authorInfo.userId}">
+        {{ authorInfo.nickname }}
+      </router-link>
       <el-divider></el-divider>
       <el-card>
         <div class="personal-relation">
@@ -34,6 +35,7 @@ export default {
   data() {
     return {
       authorInfo: {
+        userId:'',
         avatar: "",
         nickname: "",
         userEmail: "",
@@ -56,7 +58,7 @@ export default {
             console.log("博文查询结果:")
             console.log(response1.data.result.userId)
             this.$axios
-                .get('/user/'+1, { // 前端发送get请求
+                .get('/user/'+response1.data.result.userId, { // 前端发送get请求
                 })
                 .then(response2 => {
                   console.log("作者查询结果:")
@@ -64,6 +66,7 @@ export default {
                   this.authorInfo.nickname = response2.data.nickname
                   this.authorInfo.userEmail = response2.data.userEmail
                   this.authorInfo.avatar = response2.data.avatar
+                  this.authorInfo.userId = response2.data.userId
                 })
                 // 错误处理
                 .catch(error => {

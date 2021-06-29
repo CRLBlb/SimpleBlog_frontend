@@ -58,11 +58,11 @@ export default {
         userId: '',
         userPhone: '13234563456',
         userPassword: '12345test',
-        //1：加入黑名单 0:未加入黑名单
-        status: '0',
+        //0：加入黑名单 1:未加入黑名单
+        status: '1',
         nickname: 'test',
         userEmail: 'test@test.com',
-        avatar:'',
+        avatar:'http://localhost:8443/api/file/gj8qsk.png',
         userCreateTime:new Date().Format("yyyy-MM-dd HH:mm:ss")
       },
 
@@ -107,6 +107,7 @@ export default {
     //提交用户注册信息
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
+        //输入合法
         if (valid) {
           this.$axios
               .get('/searchuser/', { // 前端发送get请求
@@ -116,6 +117,11 @@ export default {
                 this.registerUser.userId = response1.data.result.length
                 // this.changePage(current)//更新当前页码的数据
                 console.log(response1.data.result.length) // 控制台打印响应的数据
+
+                //获取当前时间
+                var timestamp = new Date( +new Date() )
+                console.log("时间:")
+                console.log(timestamp); //1495302061441
                 this.$axios
                     .post('/userregister', {
                       // userId: this.registerUser.userId + 1,
@@ -125,14 +131,26 @@ export default {
                       status: this.registerUser.status,
                       userEmail: this.registerUser.userEmail,
                       avatar: this.registerUser.avatar,
-                      userCreateTime:this.registerUser.userCreateTime
+                      userCreateTime:timestamp
                     })
-                    .then(function (response2) {
-                      alert(JSON.stringify(response2.data))
+                    .then(response2 =>  {
+                      console.log("response2")
+                      console.log(response2.data)
+                      this.$message({
+                        showClose: true,
+                        type: 'success',
+                        message: '成功注册用户信息！'
+                      })
+                      this.$router.replace('/login')
                     })
                     .catch(error => {
                       console.log(error)
-                      alert("用户手机号已被注册!")
+                      // alert("用户手机号已被注册!")
+                      this.$message({
+                        showClose: true,
+                        type: 'warning',
+                        message: '用户手机号已被注册！'
+                      })
                     })
               })
               // 错误处理
@@ -140,8 +158,14 @@ export default {
                 console.log(error)
                 console.log('STH WRONG WITH IT LIUBO')
               })
-        } else {
+        }
+        else {
           console.log("error submit!!");
+          this.$message({
+            showClose: true,
+            type: 'warning',
+            message: '请输入合法注册信息！'
+          })
           return false;
         }
       });

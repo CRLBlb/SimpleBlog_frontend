@@ -52,7 +52,7 @@ export default {
   data() {
     return {
       newBlog: {
-        blogCreateTime: "2021-06-21T01:41:39.000+0000",
+        blogCreateTime: "",
         blogId: 0,
         collectionNum: 0,
         commentNum: 0,
@@ -61,7 +61,7 @@ export default {
         likeNum: 0,
         status: 0,
         title: "Vue简介",
-        userId: 1,
+        userId: this.$store.state.user.userId,
         cover: "",
         htmlContent:''
       },
@@ -71,9 +71,7 @@ export default {
   },
   methods: {
     submit() {
-      var myDate = new Date()
-      // this.newBlog.blogCreateTime = this.$moment(myDate).format('YYYY-MM-DD HH:mm:ss')
-      this.newBlog.blogCreateTime = myDate
+      this.newBlog.blogCreateTime = new Date().Format("yyyy-MM-dd HH:mm:ss")
       this.newBlog.collectionNum = 0
       this.newBlog.commentNum = 0
       this.newBlog.likeNum = 0

@@ -4,8 +4,10 @@
       <div slot="header" class="clearfix">
         <span>我的关注</span>
       </div>
-      <div class="personal-relation" v-for="(star, index) in stars" @click="toOther(star.userId)">
-        <div class="relation-item">{{star.nickname}}</div>
+<!--      <div class="personal-relation" v-for="(star, index) in stars" @click="toOther(star.userId)">-->
+      <div class="personal-relation" v-for="(star, index) in stars" >
+        <router-link class="relation-item" :to="{path:'otherhome'
+              ,query:{userId: star.userId}}">{{star.nickname}}</router-link>
         <el-divider></el-divider>
       </div>
     </el-card>
@@ -22,6 +24,7 @@ name: "FollowBar",
   },
   methods:{
     toOther(starid){
+
       this.$router.push({
         name:"OtherHome",
         params:{starid:starid}
@@ -29,7 +32,7 @@ name: "FollowBar",
     }
   },
   mounted() {
-    this.$axios.get("/follow/1").then((res)=> {
+    this.$axios.get("/follow/"+this.$store.state.user.userId).then((res)=> {
           this.stars = res.data
         }
     )

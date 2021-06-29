@@ -11,9 +11,9 @@ name: "TopBar",
     return{
       navList: [
         {name: '/userhome', navItem: '我的文章'},
-        // {name: '/', navItem: '我的关注'},
-        // {name: '/', navItem: '消息中心'},
-        {name: '/postpage', navItem: '发表博客'}
+        {name: '/postpage', navItem: '发表博客'},
+        {name: '/mylike', navItem: '我的点赞'},
+        {name: '/mycollection', navItem: '我的收藏'}
       ]
 
     }

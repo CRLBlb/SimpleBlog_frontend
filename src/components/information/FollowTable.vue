@@ -10,8 +10,11 @@
             </el-popconfirm>
           </div>
         </div>
-        <div class="text item">
-          {{a.fanName}}关注了你
+        <div style="font-size: 20px" class="text item">
+          <router-link :to="{path:'/otherhome'
+              ,query:{userId: a.follow.fanId}}">
+            <span style="font-size: 20px"><strong>{{a.fanName}}</strong></span>
+          </router-link>关注了你
         </div>
       </el-card>
       <el-divider><i class="el-icon-star-on"></i>新的关注</el-divider>

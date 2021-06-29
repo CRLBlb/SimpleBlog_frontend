@@ -20,17 +20,6 @@ export default {
   components: {Blogs, SideMenu},
 
   methods: {
-    // listByCategory () {
-    //   var _this = this
-    //   var categoryId = this.$refs.sideMenu.categoryId
-    //   var url = 'categories/' + categoryId + '/blogs'
-    //   this.$axios.get(url).then(resp => {
-    //     if (resp && resp.data.code === 200) {
-    //       _this.$refs.blogsArea.blogs = resp.data.result
-    //       _this.$refs.blogsArea.currentPage = 1
-    //     }
-    //   })
-    // }
   }
 }
 </script>

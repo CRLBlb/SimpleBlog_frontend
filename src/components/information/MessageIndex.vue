@@ -2,12 +2,13 @@
   <el-container style="height: 500px; border: 1px solid #eee">
     <el-aside width="300px" style="background-color: rgb(255,252,252); border-radius: 30px">
       <el-row>
-        <div style="float: left;margin-left: 30px;margin-top: 25px;"><el-avatar :size="35"></el-avatar>  {{userId}}</div>
+        <div style="float: left;margin-left: 30px;margin-top: 25px;">
+          <el-avatar :size="35" :src="this.$store.state.user.avatar"></el-avatar>  {{userId}}</div>
       </el-row>
             <el-table :data="sessionList" style="width: 100%">
               <el-table-column>
                 <template slot-scope="scope" >
-                  <el-button type="text" style="width: 100%;background-color: #d6d6f6" shadow="hover" @click="changeToUserId(scope.row.userId)">
+                  <el-button type="text" style="width: 100%;background-color: #d6d6f6" shadow="hover" @click="changeToUserId(scope.row.userId,scope.row.avatar,scope.row.nickname)">
 <!--                    <el-avatar style="float: left"  :size="33" :src="scope.row.avatar"></el-avatar>-->
                     <div style="float: left; margin-left: 10px" v-for="i in unReadMessageNum">
                         <span v-if="i.key==scope.row.userId">
@@ -44,7 +45,7 @@
 
     <el-container v-if="toUserId" style="border-color: #24c97f;border-radius: 30px">
       <el-header style=" font-size: 24px">
-        <span style="float: left">{{toUserId}}</span>
+        <span style="float: left">{{toUserId}}|{{toUserNickname}}</span>
         <span style="float: right">
         <el-tooltip class="item" effect="dark" content="时间显示" placement="bottom">
           <el-switch
@@ -69,12 +70,17 @@
                     <span v-if="scope.row.isRead==1" style="margin-left: 10px">已读</span>
                   </div></el-col>
                   <el-col :span="4"><div class="grid-content bg-purple-light">{{ scope.row.content }}</div></el-col>
-                  <el-col :span="1"><div class="grid-content bg-purple">{{ scope.row.senderId }}</div></el-col>
+                  <el-col :span="1"><div class="grid-content bg-purple"><el-avatar :src="$store.state.user.avatar"></el-avatar></div></el-col>
+
                 </el-row>
               </div>
               <div v-else>
                 <el-row type="flex" class="row-bg" justify="start">
-                  <el-col :span="1"><div class="grid-content bg-purple">{{ scope.row.senderId }}</div></el-col>
+                  <el-col :span="1">
+                    <router-link class="article-link" :to="{path:'/otherhome',query:{userId: toUserId}}">
+                      <div class="grid-content bg-purple"><el-avatar :src="toUserAvatar"></el-avatar></div>
+                    </router-link>
+                  </el-col>
                   <el-col :span="4"><div class="grid-content bg-purple-light">{{ scope.row.content }}</div></el-col>
                 </el-row>
               </div>
@@ -228,8 +234,10 @@ export default {
       })
       // this.$alert(this.toUserId)
     },
-    changeToUserId(id){
+    changeToUserId(id,avatar,nickname){
       this.toUserId = id
+      this.toUserAvatar = avatar
+      this.toUserNickname = nickname
       this.$axios
           .get("/readMessageOfUserId?senderId="+this.toUserId+"&receiverId="+this.userId).then(success=>{
         this.getUnreadMessageNum(id)
@@ -324,6 +332,8 @@ export default {
       sessionList: [],
       userId:this.$store.state.user.userId,
       toUserId:this.getParameter("id"),
+      toUserAvatar:"",
+      toUserNickname:"",
       // toUserId:0,
       // toUserId:11,
       message:{
@@ -356,23 +366,23 @@ Date.prototype.Format = function (fmt) {
 </script>
 
 <style scoped>
-.el-header {
-  background-color: #d4e1f6;
-  color: #333;
-  line-height: 60px;
-}
-.el-table{
-  margin: 0;
+/*.el-header {*/
+/*  background-color: #d4e1f6;*/
+/*  color: #333;*/
+/*  line-height: 60px;*/
+/*}*/
+/*.el-table{*/
+/*  margin: 0;*/
 
-  padding: 0;
-}
+/*  padding: 0;*/
+/*}*/
 
-.el-main{
-  height: 400px;
-  padding-bottom: 0;
-}
+/*.el-main{*/
+/*  height: 400px;*/
+/*  padding-bottom: 0;*/
+/*}*/
 
-.el-aside {
-  color: #333;
-}
+/*.el-aside {*/
+/*  color: #333;*/
+/*}*/
 </style>

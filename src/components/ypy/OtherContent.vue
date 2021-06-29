@@ -9,13 +9,19 @@
             <el-button type="" @click="toBack">回到主页</el-button>
             <el-button type="warning" @click="unfollow" v-if="isFollow">已关注</el-button>
             <el-button type="warning" @click="follow" v-else>关注博主</el-button>
-
+            <el-button type="warning" @click="message" >私信</el-button>
           </div>
         </div>
         <div>
-          <el-card v-for="(blog, index) in starBlogs" :key="index" style="margin-bottom: 15px">
+          <el-card v-for="(blog, index) in starBlogs"
+                   :key="index" style="margin-bottom: 15px"
+                   v-if="blog.status === 1">
             <div slot="header">
-              <span style="font-weight: bold; float: left">{{ blog.title }}</span>
+              <router-link class="article-link" :to="{path:'/blog/article'
+              ,query:{blogId: blog.blogId}}">
+                <span style="font-weight: bold; float: left"><strong>{{ blog.title }}</strong></span>
+              </router-link>
+
               <span style="color: #cac6c6">{{ blog.blogCreateTime }}</span>
             </div>
             <div style="text-align:left">
@@ -43,12 +49,14 @@ export default {
   },
   methods:{
     toBack() {
-      this.$router.push({name:"Home"})
+      this.$router.push({name:"UserHome"})
     },
     follow(){
       this.isFollow = true
+      console.log(this.starId)
       this.$axios.get("/follow/addfollow/"+this.fanId+"/"+this.starId).then((res)=>{
-        this.$axios.get('/sendOneWebSocket/'+blogId+'/follow')
+        //关注消息提醒
+        this.$axios.get('/sendOneWebSocket/'+this.starId+'/follow')
         this.$message.warning('成功关注')
       })
     },
@@ -58,12 +66,19 @@ export default {
         this.$message.warning('成功取消关注')
       })
     },
+    //跳转到私信界面
+    message(){
+      let id=this.starId
+      this.$router.push('/message?id='+id)
+    }
 
   },
   mounted(){
     //设置访问对象id
-    this.starId = this.$route.params.starid
-    if(this.starId == null){
+    this.starId = this.$route.query.userId
+    //获取当前登录用户id
+    this.fanId = this.$store.state.user.userId
+    if(this.starId === this.$store.state.user.userId){
       this.$router.push({
         name:"UserHome"
       })
@@ -82,8 +97,7 @@ export default {
             this.starInfo.userCreateTime = this.$moment(this.starInfo.userCreateTime).format('YYYY-MM-DD HH:mm:ss')
           }
       )
-      //获取当前登录用户id
-      this.fanId = 1
+
       //查看是否关注
       this.$axios.get("/follow/isfollow/"+this.fanId+"/"+this.starId).then((res)=>{
         this.isFollow = res.data

@@ -7,17 +7,22 @@
           <span>我的博客</span>
         </div>
         <div>
-          <!--              <el-table :data="myBlogs">-->
-          <!--                <el-table-column prop="title"></el-table-column>-->
-          <!--              </el-table>-->
           <el-card v-for="(blog, index) in myBlogs" :key="index" style="margin-bottom: 15px">
             <div slot="header">
-              <span style="font-weight: bold; float: left">{{ blog.title }}</span>
+              <router-link class="article-link" :to="{path:'/blog/article'
+              ,query:{blogId: blog.blogId}}">
+                <span style="font-weight: bold; float: left"><strong>{{ blog.title }}</strong></span>
+              </router-link>
               <span style="color: #cac6c6">{{ blog.blogCreateTime }}</span>
+
               <el-row style="float: right">
                 <el-button style="padding: 5px 10px" type="primary" @click="toEdit(blog.blogId)">编辑</el-button>
                 <el-button style="padding: 5px 10px; " type="danger" @click="mydelete(blog.blogId)">删除</el-button>
               </el-row>
+              <span style="float:right;color: gray;margin-right: 20px" v-if="blog.status === 0">审核中</span>
+              <span style="float:right;color: green;margin-right: 20px" v-if="blog.status === 1">审核通过</span>
+              <span style="float:right;color: red;margin-right: 20px" v-else-if="blog.status === 2">审核未通过</span>
+
             </div>
             <div style="text-align:left">
               {{ blog.description }}
@@ -45,7 +50,7 @@ export default {
           likeNum: 0,
           status: 0,
           title: "Vue简介",
-          userId: 1
+          userId: this.$store.state.user.userId
         }
       ],
 
@@ -55,7 +60,7 @@ export default {
   methods:{
     mydelete(blogid){
       this.$axios.post("/blog/del/"+blogid).then((res)=>{
-            this.$axios.get("/blog/userid/1").then((res)=>{
+            this.$axios.get("/blog/userid/"+this.$store.state.user.userId).then((res)=>{
                   this.myBlogs = res.data
                   for (var i=0;i<this.myBlogs.length; i++){
                     this.myBlogs[i].blogCreateTime = this.$moment(this.myBlogs[i].blogCreateTime).format('YYYY-MM-DD HH:mm:ss')
@@ -74,7 +79,7 @@ export default {
   },
   mounted(){
     var that = this
-    this.$axios.get("/blog/userid/1").then(
+    this.$axios.get("/blog/userid/"+this.$store.state.user.userId).then(
         function (res){
           that.myBlogs = res.data
           for (var i=0;i<that.myBlogs.length; i++){

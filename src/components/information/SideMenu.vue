@@ -18,7 +18,7 @@
         <span slot="title">点赞</span>
       </el-menu-item>
      <el-menu-item index="/message">
-       <el-badge is-dot :hidden="message_tag" class="item"><i class="el-icon-message"></i></el-badge>
+       <el-badge is-dot :hidden="!unreadMessage" class="item"><i class="el-icon-message"></i></el-badge>
         <span slot="title">私信</span>
       </el-menu-item>
       <el-menu-item index="/information/set">
@@ -78,10 +78,14 @@ export default {
       follow_tag:this.follow,
       like_tag:this.like,
       message_tag:this.message,
-      Collapse: true
+      Collapse: true,
+      unreadMessage:'',
     };
   },
   mounted() {
+    this.$axios.get("/checkUnreadMessage?id="+this.$store.state.user.userId).then(success=>{
+      this.unreadMessage = success.data
+    })
   },
   methods: {
   }

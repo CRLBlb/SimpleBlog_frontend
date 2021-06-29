@@ -9,22 +9,11 @@
     <el-menu-item v-for="(item,i) in navList" :key="i" :index="item.name">
       {{ item.navItem }}
     </el-menu-item>
-    <el-menu-item style="width: 800px" >
-      <el-input
-          placeholder="请输入博主昵称"
-          prefix-icon="el-icon-search"
-          clearable
-          style="position: center; width: 500px;"
-          v-model="search_user"
-          @click.native="handleSearch">
-      </el-input>
-    </el-menu-item>
-    <el-submenu index="2" >
+    <el-submenu index="2" style="float: right; margin-right: 200px;" >
       <template slot="title">
       <!--用户头像-->
         <el-avatar :src="avatar" />
       </template>
-      <el-menu-item index="">个人中心</el-menu-item>
       <el-submenu index="2-4">
         <template slot="title" >消息中心</template>
         <el-menu-item index="/information/broadcast">
@@ -40,7 +29,7 @@
           <el-badge is-dot :hidden="like_tag" class="item">点赞</el-badge>
         </el-menu-item>
         <el-menu-item index="/message">
-          <el-badge is-dot :hidden="message_tag" class="item">私信</el-badge>
+          <el-badge is-dot :hidden="!unreadMessage" class="item">私信</el-badge>
         </el-menu-item>
         <el-menu-item index="/information/set">
           <el-badge is-dot :hidden="true" class="item">设置</el-badge>
@@ -67,6 +56,9 @@ export default {
   name: 'NavMenu',
 
   mounted() {
+    this.$axios.get("/checkUnreadMessage?id="+this.$store.state.user.userId).then(success=>{
+      this.unreadMessage = success.data
+    })
   },
 
 
@@ -90,6 +82,7 @@ export default {
   },
   data () {
     return {
+      unreadMessage:'',
       info_tag:true,
       count:0,
       broadcast_tag:this.broadcast,
@@ -100,6 +93,7 @@ export default {
       navList: [
         {name: '/index', navItem: '首页'},
         {name: '/blog', navItem: '博客'},
+        {name: '/user', navItem: '博主'},
         {name: '/userhome', navItem: '个人中心'}
       ],
       //搜索框输入内容
@@ -116,32 +110,23 @@ export default {
     },
     //根据昵称搜索博主信息
     handleSearch () {
-      let search = this.search
+      let search_user = this.search_user
       let _this = this
-      // console.log(this.$store.state) //控制台打印日志
-      if (search === '') {
-        console.log('search all !')
-        console.log('length:' + this.data.length) // 获取长度
-        // console.log(JSON.parse(JSON.stringify(row))) //JSON.stringify解决显示[object,object]的问题
-        // console.log("index:"+index)
-      } else {
-        console.log('search one !')
-      }
+
       this.$axios
-          .get('/searchblog/' + search, { // 前端发送post请求？
-          })
-          .then(response => {
-            _this.data = response.data // 传递后端数据到前端
-            JSON.stringify(response.data)
-            loadArticles()
-            // this.changePage(current)//更新当前页码的数据
-            console.log(response) // 控制台打印响应的数据
-          })
-          // 错误处理
-          .catch(error => {
-            console.log(error)
-            console.log('STH WRONG WITH IT LIUBO')
-          })
+          .get('/findbynickname/'+ 4+'/1'+'?nickname='
+              + search_user, {
+          }).then(resp => {
+        if (resp && resp.status === 200) {
+          // console.log(resp)
+          // _this.blogs = resp.data
+          console.log("成功查询博主用户信息！")
+          _this.blogs = resp.data.result.content
+          _this.total = resp.data.result.totalElements
+          console.log(_this.blogs[0])
+        }
+      })
+
     },
   }
 }

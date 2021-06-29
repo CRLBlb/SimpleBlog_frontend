@@ -24,20 +24,26 @@
     <div style="margin-top: 40px">
       <div class="comments-area">
         <el-card style="text-align: left">
-          <div v-for="comment in comments" :key="comment.commentId" >
+          <div v-for="comment in comments" :key="comment.comment.commentId" >
             <div style="float:left;width:85%;height: 150px;">
               <el-divider content-position="left">
-                <span style="font-size: 20px">
-                  <strong >{{user.nickname}}</strong>
+                <router-link class="article-link" :to="{path:'/otherhome?userId='
+              +comment.user.userId}">
+                                  <span style="font-size: 20px">
+                  <strong >{{comment.user.nickname}}</strong>
                 </span>
+                </router-link>
                 <div>
-                  <strong >{{comment.commentCreateTime}}</strong>
+                  <strong >{{comment.comment.commentCreateTime}}</strong>
                 </div>
               </el-divider>
               <span style="font-size: 20px">
-                <el-avatar class="header-img" :size="40" ></el-avatar>
+                <el-avatar
+                    class="header-img"
+                    :size="40"
+                    :src="comment.user.avatar"></el-avatar>
               </span>
-                <p>{{comment.commentContent}}</p>
+                <p>{{comment.comment.commentContent}}</p>
 
             </div>
           </div>
@@ -60,8 +66,10 @@ export default {
   name: "Comments",
   data(){
     return{
-      //分页查询数据
+      //分页查询评论数据
       comments: [],
+      // //分页查询相应发送评论用户数据
+      // users:[],
       pageSize: 4,
       total: 0,
       //用户评论数据
@@ -73,7 +81,9 @@ export default {
         //获取当前时间，设置时间格式
         commentCreateTime:new Date().Format("yyyy-MM-dd HH:mm:ss"),
         //默认评论消息提醒未读
-        status:0
+        status:0,
+        //默认评论为审核中状态
+        pass:0
       },
       //已登录用户数据
       user:{
@@ -85,32 +95,31 @@ export default {
   },
   mounted () {
     //打开界面时载入所有评论
+    this.$axios.get('/commentnum/'+this.$route.query.blogId).then(resp=>{
+      this.total= resp.data
+    })
     this.loadComments()
   },
   methods: {
     //载入所有评论
     loadComments () {
-      var _this = this
-      this.$axios.get('/comment/' + this.pageSize + '/1').then(resp => {
-        if (resp && resp.data.code === 200) {
+      this.$axios.get('/comment/'+this.$route.query.blogId+'/' + this.pageSize + '/1').then(resp => {
           console.log("成功读取评论！")
           console.log(resp.data)
-          _this.comments = resp.data.result.content
-          _this.total = resp.data.result.totalElements
-          console.log(_this.comments[0])
+          this.comments = resp.data
+          // this.total = resp.data.totalElements
+          console.log("获取评论查询数据")
+          console.log(this.comments)
+        // console.log(this.comments[0])
           console.log("登录状态：")
-          console.log(_this.$store.state)
-        }
+          console.log(this.$store.state)
       })
     },
     //捕捉页面改变
     handleCurrentChange (page) {
       var _this = this
-      this.$axios.get('/comment/' + this.pageSize + '/' + page).then(resp => {
-        if (resp && resp.data.code === 200) {
-          _this.comments = resp.data.result.content
-          _this.total = resp.data.result.totalElements
-        }
+      this.$axios.get('/comment/'+this.$route.query.blogId+'/'+ this.pageSize + '/' + page).then(resp => {
+          _this.comments = resp.data
       }).catch(failResponse => {
         console.log(failResponse);
       })
@@ -126,64 +135,71 @@ export default {
         })
       }
       else{
-        let _this = this;
+        //获取当前时间
+        var timestamp = new Date( +new Date() )
+        console.log("时间:")
+        console.log(timestamp); //1495302061441
         this.$axios
             .post('/addcomment', {
               // commentId 后端 自增
-              userId:_this.$store.state.user.userId,
+              userId:this.$store.state.user.userId,
               blogId:this.$route.query.blogId,
               // blogId:1,
               commentContent:this.comment.commentContent,
-              commentCreateTime:this.comment.commentCreateTime,
-              status:this.comment.status
+              commentCreateTime:timestamp,
+              status:this.comment.status,
+              pass:this.comment.pass
             })
-            .then(function (response2) {
-              console.log(response2)
-              _this.$message({
+            .then(response2 => {
+
+              console.log('显示response2!')
+              console.log(response2.data.blogId)
+              //发表评论后刷新页面
+              this.loadComments()
+              this.$axios.get('/sendOneWebSocket/'
+                  +response2.data.blogId+'/comment')
+                  .then(response2=> {
+                    console.log("111")
+                  })
+              this.$message({
                 showClose: true,
                 type: 'warning',
-                message: '评论发送成功！'
+                message: '评论发送成功,待审核通过后评论将会显示！'
               })
-              //发表评论后刷新页面
-              _this.loadComments()
-              _this.$axios.get('/sendOneWebSocket/'+blogId+'/comment')
-                  .then(function (response2) {
-                    console.log("发送评论后，发送消息！")
-                  })
             })
             .catch(error => {
               console.log(error)
             })
         }
     },
-    //评论时间处理函数
-    dateStr(date){
-      //获取js 时间戳
-      var time=new Date().getTime();
-      //去掉 js 时间戳后三位，与php 时间戳保持一致
-      time=parseInt((time-date)/1000);
-      //存储转换值
-      var s;
-      if(time<60*10){//十分钟内
-        return '刚刚';
-      }else if((time<60*60)&&(time>=60*10)){
-        //超过十分钟少于1小时
-        s = Math.floor(time/60);
-        return  s+"分钟前";
-      }else if((time<60*60*24)&&(time>=60*60)){
-        //超过1小时少于24小时
-        s = Math.floor(time/60/60);
-        return  s+"小时前";
-      }else if((time<60*60*24*30)&&(time>=60*60*24)){
-        //超过1天少于30天内
-        s = Math.floor(time/60/60/24);
-        return s+"天前";
-      }else{
-        //超过30天ddd
-        var date= new Date(parseInt(date));
-        return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate();
-      }
-    }
+    // //评论时间处理函数
+    // dateStr(date){
+    //   //获取js 时间戳
+    //   var time=new Date().getTime();
+    //   //去掉 js 时间戳后三位，与php 时间戳保持一致
+    //   time=parseInt((time-date)/1000);
+    //   //存储转换值
+    //   var s;
+    //   if(time<60*10){//十分钟内
+    //     return '刚刚';
+    //   }else if((time<60*60)&&(time>=60*10)){
+    //     //超过十分钟少于1小时
+    //     s = Math.floor(time/60);
+    //     return  s+"分钟前";
+    //   }else if((time<60*60*24)&&(time>=60*60)){
+    //     //超过1小时少于24小时
+    //     s = Math.floor(time/60/60);
+    //     return  s+"小时前";
+    //   }else if((time<60*60*24*30)&&(time>=60*60*24)){
+    //     //超过1天少于30天内
+    //     s = Math.floor(time/60/60/24);
+    //     return s+"天前";
+    //   }else{
+    //     //超过30天ddd
+    //     var date= new Date(parseInt(date));
+    //     return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate();
+    //   }
+    // }
   }
 }
 </script>

@@ -134,6 +134,10 @@
       },
       //用户点赞
       addLikes (blogId,userId) {
+        //获取当前时间
+        var timestamp = new Date( +new Date() )
+        console.log("时间:")
+        console.log(timestamp); //1495302061441
         this.$axios
             //搜索用户-点赞数据表
             .get('/searchuserlikes/', { // 前端发送get请求
@@ -148,7 +152,7 @@
                 // likeId:'0',
                 blogId:blogId,
                 userId:_this.$store.state.user.userId,
-                likeCreateTime:new Date().Format("yyyy-MM-dd HH:mm:ss"),
+                likeCreateTime:timestamp,
                 status:0
               }).then(resp => {
                 if (resp && resp.data.result === "取消点赞") {
@@ -160,7 +164,9 @@
                   this.isLiked = '1'
                   console.log(resp.data)
                   console.log("成功点赞！")
-                  this.$axios.get('/sendOneWebSocket/'+blogId+'/like')
+                  this.$axios.get('/sendOneWebSocket/'+blogId+'/like').then(res=>{
+                    console.log(res.data)
+                  })
                 }
               }).catch(failResponse => {
                 console.log(failResponse);

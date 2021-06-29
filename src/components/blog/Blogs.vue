@@ -1,22 +1,20 @@
 <template>
   <div>
 
-    <search-bar @onSearch="searchResult" ref="searchBar"></search-bar>
-
+    <searchBlogBar @onSearchBlog="searchResult" ref="searchBlogBar"></searchBlogBar>
     <div style="margin-top: 40px">
-      <!--<el-button @click="addArticle()">添加文章</el-button>-->
       <div class="blogs-area">
         <el-card style="text-align: left">
           <div v-for="article in blogs" :key="article.blogId">
             <div style="float:left;width:85%;height: 150px;">
-              <router-link class="article-link" :to="{path:'blog/article'
+              <router-link class="article-link" :to="{path:'/blog/article'
               ,query:{blogId: article.blogId}}">
                 <span style="font-size: 20px"><strong>{{article.title}}</strong></span>
               </router-link>
               <el-divider content-position="left">
                 {{article.blogCreateTime}}
               </el-divider>
-              <router-link class="article-link" :to="{path:'blog/article'
+              <router-link class="article-link" :to="{path:'/blog/article'
               ,query:{blogId: article.blogId}}">
                 <p>{{article.description}}</p>
               </router-link>
@@ -54,16 +52,18 @@
 <!--引入阿里图标库 https://www.iconfont.cn/collections/detail?cid=614-->
 
 <script>
-import SearchBar from './SearchBar'
+import SearchBlogBar from './SearchBlogBar'
 export default {
   name: 'Blogs',
-  components: {SearchBar},
+  components: {SearchBlogBar},
   data () {
     return {
       //isLiked 用于判断用户是否已点赞 1:已点赞 0:未点赞
       isLiked:'0',
       blogs: [],
+      //每页显示信息数量
       pageSize: 4,
+      //总共数据数量
       total: 0
     }
   },
@@ -73,9 +73,10 @@ export default {
   methods: {
     loadArticles () {
       var _this = this
-      this.$axios.get('/blog/' + this.pageSize + '/1').then(resp => {
+      this.$axios.get('/blogbytitle/'
+          + this.pageSize + '/1'+'?title='+this.$refs.searchBlogBar.searchtitle).then(resp => {
         if (resp && resp.data.code === 200) {
-          console.log("succ")
+          console.log("成功载入博文信息！")
           _this.blogs = resp.data.result.content
           _this.total = resp.data.result.totalElements
           console.log(_this.blogs[0])
@@ -85,7 +86,8 @@ export default {
     //监控分页改变
     handleCurrentChange (page) {
       var _this = this
-      this.$axios.get('/blog/' + this.pageSize + '/' + page).then(resp => {
+      this.$axios.get('/blogbytitle/'
+          + this.pageSize + '/' + page+'?title='+this.$refs.searchBlogBar.searchtitle).then(resp => {
         if (resp && resp.data.code === 200) {
           _this.blogs = resp.data.result.content
           _this.total = resp.data.result.totalElements
@@ -99,25 +101,19 @@ export default {
       const _this = this;
       this.$axios
           .get('/blogbytitle/'+ this.pageSize+'/1'+'?title='
-              + this.$refs.searchBar.searchtitle, {
+              + this.$refs.searchBlogBar.searchtitle, {
           }).then(resp => {
         if (resp && resp.status === 200) {
           // console.log(resp)
           // _this.blogs = resp.data
           console.log("成功查询博文信息！")
           _this.blogs = resp.data.result.content
+          //获取所有博文信息数量
+          //length获取当前页面数据数量，即为pageSize
           _this.total = resp.data.result.totalElements
           console.log(_this.blogs[0])
         }
       })
-      // this.$axios.get('/blog/' + this.pageSize + '/1').then(resp => {
-      //   if (resp && resp.data.code === 200) {
-      //     console.log("succ")
-      //     _this.blogs = resp.data.result.content
-      //     _this.total = resp.data.result.totalElements
-      //     console.log(_this.blogs[0])
-      //   }
-      // })
     },
   }
 }

@@ -4,7 +4,7 @@
       <el-header style="z-index: 1;height: 80px;margin-left: -20px">
         <Header style="position: absolute;width: 98%;"></Header>
       </el-header>
-  <el-form :model="loginForm" :rules="rules" class="login-container" label-position="left"
+  <el-form :model="loginForm" :rules="rules" class="login-container" ref="loginForm" label-position="left"
            label-width="0px">
     <h3 class="login_title">系统登录</h3>
     <el-form-item prop="userPhone">
@@ -16,7 +16,7 @@
                 auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
     <el-form-item style="width: 100%">
-      <el-button type="primary" style="width: 100%;background: #505458;border: none" v-on:click="userlogin">登录</el-button>
+      <el-button type="primary" style="width: 100%;background: #505458;border: none" v-on:click="userlogin('loginForm')">登录</el-button>
     </el-form-item>
     <el-form-item style="width: 100%">
       <el-button type="primary" style="width: 100%;background: #505458;border: none" v-on:click="userregister">注册</el-button>
@@ -34,8 +34,8 @@ export default {
       //登录表单
       loginForm: {
         userId:"",
-        userPhone: '12312341278',
-        userPassword: '666666',
+        userPhone: '',
+        userPassword: '',
         avatar:'',
         nickname:''
       },
@@ -55,50 +55,90 @@ export default {
     }
   },
   methods: {
-    userlogin () {
+    userlogin (formName) {
       var _this = this;
       // //控制台打印日志
       // console.log(this.$store.state)
-      this.$axios
-          .post('/login', {
-            //注意与后端数据库字段统一!!
-            userPhone: this.loginForm.userPhone,
-            userPassword: this.loginForm.userPassword,
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.$axios
+              .post('/login', {
+                //注意与后端数据库字段统一!!
+                userPhone: this.loginForm.userPhone,
+                userPassword: this.loginForm.userPassword,
+              })
+              .then(successResponse => {
+                console.log("显示响应信息！")
+                console.log(successResponse)
+                if (successResponse.data.code === 200) {
+                  console.log(this.loginForm.userPhone)
+                  console.log(this.loginForm.userPassword)
+                  console.log("userId:"+successResponse.data.result.userId)
+                  //获取所登录用户的Id
+                  _this.userId = successResponse.data.result.userId
+                  this.loginForm.userId = _this.userId.toString()
+                  //获取所登录用户的头像
+                  _this.avatar = successResponse.data.result.avatar
+                  this.loginForm.avatar = _this.avatar
+                  //获取所登录用户的昵称
+                  _this.nickname = successResponse.data.result.nickname
+                  this.loginForm.nickname = _this.nickname
+                  console.log(this.loginForm.userId)
+                  console.log(this.loginForm.avatar)
+                  console.log(this.loginForm)
+                  // _this.$store.state.user.userId= _this.userId
+                  //提交登录信息状态
+                  _this.$store.commit('login', _this.loginForm)
+                  console.log(_this.$store.state)
+                  //重定向路径
+                  var path = this.$route.query.redirect
+                  //路径存在则跳转;路径不存在，则跳转到首页Index
+                  this.$router.replace({path: path === '/login' || path ===undefined? '/index' : path })
+                  console.log("登录成功！");
+                  this.$message({
+                    showClose: true,
+                    type: 'success',
+                    message: '登录成功！'
+                  })
+                }
+                else if(successResponse.data.message ==="密码错误"){
+                  console.log("登录失败，密码错误！");
+                  this.$message({
+                    showClose: true,
+                    type: 'warning',
+                    message: '用户名或密码错误！'
+                  })
+                }
+                else if(successResponse.data.message ==="用户被冻结"){
+                  console.log("登录失败，用户被冻结！");
+                  this.$message({
+                    showClose: true,
+                    type: 'warning',
+                    message: '您的用户已被冻结！'
+                  })
+                }
+              })
+              .catch(failResponse => {
+                console.log(failResponse);
+              })
+        } else {
+          console.log("error submit!!");
+          this.$message({
+            showClose: true,
+            type: 'warning',
+            message: '请输入合法登录信息！'
           })
-          .then(successResponse => {
-            if (successResponse.data.code === 200) {
-              console.log(this.loginForm.userPhone)
-              console.log(this.loginForm.userPassword)
-              console.log("userId:"+successResponse.data.result.userId)
-              //获取所登录用户的Id
-              _this.userId = successResponse.data.result.userId
-              this.loginForm.userId = _this.userId.toString()
-              //获取所登录用户的头像
-              _this.avatar = successResponse.data.result.avatar
-              this.loginForm.avatar = _this.avatar
-              //获取所登录用户的昵称
-              _this.nickname = successResponse.data.result.nickname
-              this.loginForm.nickname = _this.nickname
-              console.log(this.loginForm.userId)
-              console.log(this.loginForm.avatar)
-              console.log(this.loginForm)
-              // _this.$store.state.user.userId= _this.userId
-              //提交登录信息状态
-              _this.$store.commit('login', _this.loginForm)
-              console.log(_this.$store.state)
-              //重定向路径
-              var path = this.$route.query.redirect
-              //路径存在则跳转;路径不存在，则跳转到首页Index
-              this.$router.replace({path: path === '/login' || path ===undefined? '/index' : path })
-              console.log("登录成功！");
-            }
-            else{
-              console.log("登录失败！");
-            }
-          })
-          .catch(failResponse => {
-            console.log(failResponse);
-          })
+          return false;
+        }
+      });
+
+
+
+
+
+
+
+
     },
     userregister(){
 

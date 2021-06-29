@@ -33,13 +33,6 @@
     /*margin-left: -15px;*/
   }
 
-  .el-carousel__item:nth-child(2n) {
-    background: black;
-  }
-
-  .el-carousel__item:nth-child(2n+1) {
-    background: black;
-  }
 
   .carousel_img {
     height: 100%;
@@ -65,12 +58,7 @@
           url: require('../../assets/img/carousel/googleIO2021.png'),
           link: 'https://www.cnbeta.com/live/1129497'
         },
-        {
-          id: 3,
-          title: 'element-ui - 网站快速成型工具',
-          img: '../../../static/carousel/element.png',
-          link: 'http://element-cn.eleme.io/#/zh-CN'
-        }]
+        ]
       }
     }
   }

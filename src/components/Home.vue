@@ -1,8 +1,12 @@
 <template>
   <div>
-    <nav-menu :broadcast="broadcast" :comment="comment" :follow="follow" :like="like" :message="message"></nav-menu>
+    <nav-menu :broadcast="broadcast" :comment="comment" :follow="follow" :like="like" :message="message">
+
+    </nav-menu>
     <router-view :broadcast="broadcast" :comment="comment" :follow="follow" :like="like" :message="message"
-                 @setTag="setTag"></router-view>
+                 @setTag="setTag">
+
+    </router-view>
   </div>
 </template>
 
@@ -95,15 +99,15 @@ export default {
       })       //此处表示查询1号用户的消息提醒！！！后续需要动态获取
     },
     setOnmessageMessage(event) {
-      if(event.data==="like"||event.data=="follow"||event.data=='comment'||event.data=='broadcast')
+      if(event.data==="like"||event.data==="follow"||event.data==='comment'||event.data==='broadcast')
       this.inform(event.data)
       // 根据服务器推送的消息做自己的业务处理
       if((event.data==="like"||event.data==="likew")&&this.like===true)
         this.like=false
       if((event.data==="comment"||event.data==="commentw")&&this.comment===true)
         this.comment=false
-      if((event.data==="follow"||event.data==="followw")&&this.follow===true)
-        this.follow=false
+      if((event.data==="follow"||event.data==="followw")&&this.follow===true){
+        this.follow=false}
       if((event.data==="broadcast"||event.data==="broadcastw")&&this.broadcast===true)
         this.broadcast=false
     },
