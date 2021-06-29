@@ -22,7 +22,7 @@
         data(){
             return {
                 broadcastId: 1,
-                broadcast:""
+                broadcast:"",
             }
         },
         methods:{
